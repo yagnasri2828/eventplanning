@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API, { setAuthToken } from '../utils/api';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link,} from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { user, token, setUser, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: user.name, email: user.email });
   const [preview, setPreview] = useState(user.profileImage || '');
@@ -19,8 +18,10 @@ const Profile = () => {
       setAuthToken(token);
       fetchData();
     }
-  }, [token]);
+  // eslint-disable-next-line no-use-before-define
+  }, [fetchData, token]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = async () => {
     const res = await API.get('/events');
     const created = res.data.filter(e => e.creator._id === user._id);
