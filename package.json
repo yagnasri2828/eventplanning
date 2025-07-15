@@ -1,0 +1,11 @@
+{
+  "name": "event-planning-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm start --prefix frontend\" \"npm run server --prefix backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
