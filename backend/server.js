@@ -12,9 +12,21 @@ connectDB();
 const app = express();
 
 // ✅ CORS config using FRONTEND_URL from .env
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL, // your Netlify main domain
+      'http://localhost:3000',  // for local testing (optional)
+    ];
+
+    // allow requests with no origin (like curl or Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
