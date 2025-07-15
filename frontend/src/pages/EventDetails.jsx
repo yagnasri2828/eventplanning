@@ -8,18 +8,20 @@ import QuerySection from '../components/QuerySection';
 const EventDetails = () => {
   const { id } = useParams();
   const { user, token } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const [event, setEvent] = useState(null);
   const [rsvps, setRsvps] = useState([]);
   const [status, setStatus] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (token) {
-      setAuthToken(token);
-      fetchEvent();
-    }
-  }, [id, token]);
+  const statusIcons = {
+    Yes: '✅',
+    No: '❌',
+    Maybe: '❓'
+  };
 
+  // ✅ fetchEvent declared once (outside useEffect)
   const fetchEvent = async () => {
     try {
       const e = await API.get(`/events/${id}`);
@@ -29,10 +31,21 @@ const EventDetails = () => {
 
       const me = r.data.find(r => r.user._id === user._id);
       if (me) setStatus(me.status);
+
+      setLoading(false);
     } catch (err) {
       toast.error('Failed to load event details.');
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      setAuthToken(token);
+      fetchEvent();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, token]); // `fetchEvent` excluded on purpose, it's stable
 
   const handleRSVP = async (s) => {
     try {
@@ -46,8 +59,7 @@ const EventDetails = () => {
   };
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this event?");
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
 
     try {
       await API.delete(`/events/${id}`);
@@ -64,13 +76,13 @@ const EventDetails = () => {
     toast.success('Event link copied to clipboard!');
   };
 
-  const statusIcons = {
-    Yes: '✅',
-    No: '❌',
-    Maybe: '❓'
-  };
+  if (loading) {
+    return <p className="p-4 text-center">⏳ Loading event details...</p>;
+  }
 
-  if (!event) return <p className="p-4">Loading...</p>;
+  if (!event) {
+    return <p className="p-4 text-center text-red-500">❌ Event not found.</p>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-white p-6">
@@ -140,7 +152,9 @@ const EventDetails = () => {
             <ul className="space-y-1 list-disc pl-5">
               {rsvps.map(r => (
                 <li key={r._id}>
-                  {r.user.name} - <span className="italic text-gray-600 dark:text-gray-300">{statusIcons[r.status]} {r.status}</span>
+                  {r.user.name} - <span className="italic text-gray-600 dark:text-gray-300">
+                    {statusIcons[r.status]} {r.status}
+                  </span>
                 </li>
               ))}
             </ul>

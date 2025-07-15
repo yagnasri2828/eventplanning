@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API, { setAuthToken } from '../utils/api';
-import { Link,} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
@@ -16,32 +16,35 @@ const Profile = () => {
   useEffect(() => {
     if (token) {
       setAuthToken(token);
+
+      const fetchData = async () => {
+        try {
+          const res = await API.get('/events');
+          const created = res.data.filter(e => e.creator._id === user._id);
+          setMyEvents(created);
+
+          const rsvpResponses = await Promise.all(
+            res.data.map(e => API.get(`/rsvp/${e._id}`).catch(() => []))
+          );
+
+          const rsvped = [];
+          rsvpResponses.forEach((r, i) => {
+            r.data?.forEach(resp => {
+              if (resp.user._id === user._id) {
+                rsvped.push(res.data[i]);
+              }
+            });
+          });
+
+          setRsvpEvents(rsvped);
+        } catch (err) {
+          console.error('Failed to load events:', err);
+        }
+      };
+
       fetchData();
     }
-  // eslint-disable-next-line no-use-before-define
-  }, [fetchData, token]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = async () => {
-    const res = await API.get('/events');
-    const created = res.data.filter(e => e.creator._id === user._id);
-    setMyEvents(created);
-
-    const rsvpResponses = await Promise.all(
-      res.data.map(e => API.get(`/rsvp/${e._id}`).catch(() => []))
-    );
-
-    const rsvped = [];
-    rsvpResponses.forEach((r, i) => {
-      r.data?.forEach(resp => {
-        if (resp.user._id === user._id) {
-          rsvped.push(res.data[i]);
-        }
-      });
-    });
-
-    setRsvpEvents(rsvped);
-  };
+  }, [token, user._id]);
 
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {

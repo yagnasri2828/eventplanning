@@ -8,6 +8,7 @@ const QuerySection = ({ eventId, eventCreator }) => {
   const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState({});
 
+  // ✅ Move fetchQueries up here
   const fetchQueries = async () => {
     try {
       const res = await API.get(`/queries/${eventId}`);
@@ -17,8 +18,10 @@ const QuerySection = ({ eventId, eventCreator }) => {
     }
   };
 
+  // ✅ Use fetchQueries after it's defined
   useEffect(() => {
     fetchQueries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
 
   const handleAsk = async () => {

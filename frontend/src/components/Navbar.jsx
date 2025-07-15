@@ -31,22 +31,34 @@ const Navbar = () => {
           {dark ? '☀️ Light' : '🌙 Dark'}
         </button>
 
-        {/* Profile Avatar */}
+        {/* Profile & Logout */}
         {user && (
-          <div
-            className="relative cursor-pointer"
-            onClick={() => navigate('/profile')}
-            title="Go to profile"
-          >
-            <img
-              src={
-                user.profileImage?.trim()
-                  ? user.profileImage
-                  : 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg'
-              }
-              alt="Profile"
-              className="w-10 h-10 rounded-full object-cover border-2 border-purple-500 hover:scale-105 transition"
-            />
+          <div className="flex items-center gap-2">
+            {/* Avatar */}
+            <div
+              className="cursor-pointer"
+              onClick={() => navigate('/profile')}
+              title="Go to profile"
+            >
+              <img
+                src={
+                  user.profileImage?.trim()
+                    ? user.profileImage
+                    : 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg'
+                }
+                alt="Profile"
+                className="w-10 h-10 rounded-full object-cover border-2 border-purple-500 hover:scale-105 transition"
+              />
+            </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={logout}
+              className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition"
+              title="Logout"
+            >
+              🚪 Logout
+            </button>
           </div>
         )}
       </div>
